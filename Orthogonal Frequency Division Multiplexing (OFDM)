@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+class OFDM:
+    def __init__(self, num_subcarriers, num_symbols, cp_len):
+        self.num_subcarriers = num_subcarriers
+        self.num_symbols = num_symbols
+        self.cp_len = cp_len
+
+    def generate_symbols(self):
+        # Generate random binary data
+        data = np.random.randint(0, 2, (self.num_subcarriers, self.num_symbols))
+        # Map binary data to QPSK symbols
+        symbols = (data[0] * 2 - 1) + 1j * (data[1] * 2 - 1)
+        return symbols
+
+    def ifft(self, symbols):
+        # Perform IFFT to convert frequency domain symbols to time domain
+        return np.fft.ifft(symbols, axis=0)
+
+    def add_cp(self, signal):
+        # Add cyclic prefix
+        return np.vstack((signal[-self.cp_len:], signal))
+
+    def transmit(self):
+        symbols = self.generate_symbols()
+        time_domain_signal = self.ifft(symbols)
+        signal_with_cp = self.add_cp(time_domain_signal)
+        return signal_with_cp
+
+    def plot_signal(self, signal):
+        plt.figure(figsize=(10, 6))
+        plt.plot(np.abs(signal.flatten()))
+        plt.title('OFDM Signal with Cyclic Prefix')
+        plt.xlabel('Samples')
+        plt.ylabel('Amplitude')
+        plt.grid()
+        plt.show()
+
+# Parameters
+num_subcarriers = 64
+num_symbols = 10
+cp_len = 16
+
+# Create OFDM instance and transmit
+ofdm = OFDM(num_subcarriers, num_symbols, cp_len)
+transmitted_signal = ofdm.transmit()
+
+# Plot the transmitted signal
+ofdm.plot_signal(transmitted_signal)
